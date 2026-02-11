@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Master Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 border border-slate-200">
+        <h1 class="text-2xl font-black text-slate-800 mb-2 text-center">FINANCIAL CALC</h1>
+        <p class="text-slate-500 text-xs text-center mb-6 uppercase tracking-widest">Interest & Profit Suite</p>
+
+        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">I want to calculate:</label>
+        <select id="calcType" onchange="updateFields()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-6 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="interest">Profit (Interest)</option>
+            <option value="principal">Principal (Investment)</option>
+            <option value="rate">Rate of Interest (%)</option>
+            <option value="time">Time (Years)</option>
+            <option value="total">Profit Principal (Total Amount)</option>
+        </select>
+
+        <div id="inputGroup" class="space-y-4">
+            </div>
+
+        <button onclick="calculate()" class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95">
+            CALCULATE NOW
+        </button>
+
+        <div id="resultBox" class="hidden mt-8 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-xl">
+            <p id="resultTitle" class="text-xs font-bold text-blue-400 uppercase mb-1">Result</p>
+            <p id="resultValue" class="text-2xl font-black text-blue-900"></p>
+        </div>
+    </div>
+
+    <script>
+        const inputGroup = document.getElementById('inputGroup');
+        const calcType = document.getElementById('calcType');
+
+        function createInput(id, label, placeholder) {
+            return `
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">${label}</label>
+                    <input type="number" id="${id}" placeholder="${placeholder}" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500">
+                </div>
+            `;
+        }
+
+        function updateFields() {
+            const type = calcType.value;
+            let html = '';
+            
+            if (type === 'interest' || type === 'total') {
+                html += createInput('p', 'Principal', 'e.g. 1000');
+                html += createInput('r', 'Rate (%)', 'e.g. 5');
+                html += createInput('t', 'Time (Years)', 'e.g. 2');
+            } else if (type === 'principal') {
+                html += createInput('i', 'Interest/Profit', 'e.g. 100');
+                html += createInput('r', 'Rate (%)', 'e.g. 5');
+                html += createInput('t', 'Time (Years)', 'e.g. 2');
+            } else if (type === 'rate') {
+                html += createInput('p', 'Principal', 'e.g. 1000');
+                html += createInput('i', 'Interest/Profit', 'e.g. 100');
+                html += createInput('t', 'Time (Years)', 'e.g. 2');
+            } else if (type === 'time') {
+                html += createInput('p', 'Principal', 'e.g. 1000');
+                html += createInput('i', 'Interest/Profit', 'e.g. 100');
+                html += createInput('r', 'Rate (%)', 'e.g. 5');
+            }
+            
+            inputGroup.innerHTML = html;
+            document.getElementById('resultBox').classList.add('hidden');
+        }
+
+        function calculate() {
+            const type = calcType.value;
+            let result = 0;
+            let label = "";
+
+            const P = parseFloat(document.getElementById('p')?.value);
+            const R = parseFloat(document.getElementById('r')?.value);
+            const T = parseFloat(document.getElementById('t')?.value);
+            const I = parseFloat(document.getElementById('i')?.value);
+
+            if (type === 'interest') {
+                result = (P * R * T) / 100;
+                label = "Profit (Interest)";
+            } else if (type === 'principal') {
+                result = (I * 100) / (R * T);
+                label = "Principal Amount";
+            } else if (type === 'rate') {
+                result = (I * 100) / (P * T);
+                label = "Rate of Interest (%)";
+            } else if (type === 'time') {
+                result = (I * 100) / (P * R);
+                label = "Time (Years)";
+            } else if (type === 'total') {
+                const interest = (P * R * T) / 100;
+                result = P + interest;
+                label = "Profit Principal (Total)";
+            }
+
+            if (isNaN(result) || !isFinite(result)) {
+                alert("Please fill all fields with valid numbers.");
+                return;
+            }
+
+            document.getElementById('resultTitle').innerText = label;
+            document.getElementById('resultValue').innerText = result.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('resultBox').classList.remove('hidden');
+        }
+
+        // Initialize fields on load
+        updateFields();
+    </script>
+</body>
+</html>
